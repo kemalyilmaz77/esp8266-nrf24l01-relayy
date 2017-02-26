@@ -1,0 +1,58 @@
+#include <SPI.h>
+
+#include "nRF24L01.h"
+#include "RF24.h"  
+#include <EEPROM.h>
+
+ byte data[32];
+const uint64_t pipe = 0xE8E8F0F0E1LL; 
+RF24 radio(9,10);   
+byte R[3];
+void setup(){
+  Serial.begin(9600);
+
+ radio.begin();    
+
+ radio.openWritingPipe(pipe);
+  radio.enableDynamicPayloads();
+  radio.setAutoAck(true);
+  radio.powerUp();
+  LoadEEprom();
+}
+
+
+
+void saveEEprom(){
+
+for(int i =0;i<32;i++){
+  EEPROM.write(i,data[i]);
+}
+  
+}
+
+
+void LoadEEprom(){
+
+for(int i =0;i<32;i++){
+ data[i]= EEPROM.read(i);
+}
+  
+}
+ 
+void loop()
+{
+  
+if (Serial.available() > 0) {
+  Serial.readBytes(R, 3);
+  if(R[0]==0xAA){
+ data[R[1]]=R[2]; 
+ saveEEprom();
+  }
+}
+
+
+data[0]=0x01;
+//data[1]=0x01;
+radio.write(&data, sizeof(data));
+}
+ 
