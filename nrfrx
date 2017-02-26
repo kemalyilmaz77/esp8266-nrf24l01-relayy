@@ -1,0 +1,60 @@
+#include <SPI.h>
+#include "nRF24L01.h"
+#include "RF24.h"
+
+byte data[32];
+RF24 nrf(9,10);
+const uint64_t pipe = 0xE8E8F0F0E1LL;
+#define relay 8
+#define lamp 1
+
+void setup(void){
+ Serial.begin(9600);
+ pinMode(relay, OUTPUT);
+ digitalWrite(relay, HIGH);
+ nrf.begin();
+ nrf.openReadingPipe(1,pipe);
+  nrf.enableDynamicPayloads();
+ nrf.setAutoAck(true);
+  nrf.powerUp();
+ nrf.startListening();
+memset(data,0,32);
+ }
+
+void loop(void){
+ if (nrf.available())
+ {
+   bool done = false;    
+   while (!done)
+   {
+     done = nrf.read(data, sizeof(data));
+
+if(data[0]==0x01){
+
+
+
+for(int i = 0;i<32;i++){
+Serial.print(data[i]);
+}
+Serial.println();
+
+
+
+
+if(data[lamp]){
+
+ digitalWrite(relay, LOW);
+   
+}else{
+digitalWrite(relay, HIGH);
+  
+}
+     //delay(10);
+   
+}
+   }
+ }
+ }
+
+ 
+ 
